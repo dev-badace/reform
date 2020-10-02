@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
+import { FormCtx } from "./Form";
 
-function Field({ type, className, name, value, onChange }) {
+function Field({ type, name, value, onChange, ...props }) {
+  const { values, valueChange } = useContext(FormCtx);
+
   return (
     <input
       type={type || "text"}
-      className={className || ""}
       name={name}
-      value={value}
-      onChange={onChange}
+      value={value || values[name]}
+      onChange={onChange || valueChange}
+      {...props}
     />
   );
 }

@@ -1,7 +1,5 @@
-import React, { createContext } from "react";
+import React from "react";
 import useForm from "../hooks/useForm";
-
-export const FormCtx = createContext(null);
 function Form({
   initialState,
   onSubmit,
@@ -9,7 +7,6 @@ function Form({
   onChange,
   phase2,
   children,
-  ...props
 }) {
   const {
     state: { values },
@@ -21,13 +18,23 @@ function Form({
 
   return (
     <>
-      <form {...props} onSubmit={(e) => handleSubmit(e)} autoComplete="off">
-        <FormCtx.Provider value={{ values, valueChange, errors, isSubmitting }}>
-          {children({ values, valueChange, errors, isSubmitting })}
-        </FormCtx.Provider>
+      <form onSubmit={handleSubmit} autoComplete="off">
+        {children({ values, valueChange, errors, isSubmitting })}
       </form>
     </>
   );
 }
+
+// <pre>
+// <br />
+// name : {fullName.firstName && fullName.firstName} <br />
+// <br />
+// lastName : {fullName.lastName && fullName.lastName} <br />
+// <br />
+// {/* {console.log(errors)} */}
+// firstnameError : {errors.firstName && errors.firstName} <br />
+// <br />
+// lastnameError : {errors.lastName && errors.lastName}
+// </pre>
 
 export default Form;

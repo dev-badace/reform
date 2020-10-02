@@ -11,6 +11,8 @@ const getErrorDefaultState = (obj) => {
   return res;
 };
 
+// Default Form States ;   isSubmitting, hasFailed
+
 //useForm hook
 function useForm({ initialState, cb, validators, onChange, phase2 }) {
   const [values, setValues] = useState(initialState);
@@ -19,26 +21,8 @@ function useForm({ initialState, cb, validators, onChange, phase2 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const valueChange = (e) => {
-    const { name, value, checked } = e.target;
-    if (e.target.type === "checkbox") {
-      if (Array.isArray(values[name])) {
-        let res = [];
-        if (!checked) {
-          res = values[name].filter((val) => val !== value);
-          return setValues({ ...values, [name]: res });
-        }
-        return setValues({ ...values, [name]: [...values[name], value] });
-      }
-
-      return setValues({
-        ...values,
-        [name]: checked,
-      });
-    }
-    setValues({
-      ...values,
-      [name]: value,
-    });
+    const { name, value } = e.target;
+    setValues({ ...values, [name]: value });
   };
 
   const reset = () => {
@@ -65,68 +49,30 @@ function useForm({ initialState, cb, validators, onChange, phase2 }) {
     (validators) => {
       let isError = false; // boolean to check if there was any error
       if (!validators) return;
+      validators.default && validators.default(values, setErrors);
 
-      //Loops over and runs the validator
-      for (let error in getErrorDefaultState(initialState)) {
-        if (error === "default") continue;
+      for (let error in validators) {
         const err = validators[error] && validators[error](values[error]);
         if (err) isError = true;
         err
           ? setErrors((errors) => ({ ...errors, [error]: err }))
           : setErrors((errors) => ({ ...errors, [error]: "" }));
       }
-
-      const defaultErr = validators.default && validators.default(values);
-      if (defaultErr) {
-        for (let err in defaultErr) {
-          if (defaultErr[err]) isError = true;
-        }
-        setErrors((errors) => ({ ...errors, ...defaultErr }));
-      }
-
       return isError;
     },
-    [values, initialState]
+    [values]
   );
-  // const runValidators = useCallback(
-  //   (validators) => {
-  //     let isError = false; // boolean to check if there was any error
-  //     if (!validators) return;
-  //     for (let error in validators) {
-  //       if (error === "default") continue;
 
-  //       const err =
-  //         validators[error] && validators[error](values[error], values);
-  //       if (err) isError = true;
-  //       err
-  //         ? setErrors((errors) => ({ ...errors, [error]: err }))
-  //         : setErrors((errors) => ({ ...errors, [error]: "" }));
-  //     }
-  //     const formError = validators.default && validators.default(values);
-  //     if (formError) {
-  //       for (let err in formError) {
-  //         if (formError[err]) isError = true;
-  //       }
-  //       setErrors((err) => ({ ...err, ...formError }));
-  //     }
-  //     return isError;
-  //   },
-  //   [values]
-  // );
+  //   useEffect(() => {
+  //     if (onChange) runValidators(validators);
+  //   }, [values, runValidators, validators, onChange]);
 
-  // If on change prop is passed, then runs the validators onChange
-  useEffect(() => {
-    if (onChange) runValidators(validators);
-  }, [values, runValidators, validators, onChange]);
-
-  // runs If formSubmission has failed once; It validates the input on change
   useEffect(() => {
     if (phase2 && hasFailed) {
       runValidators(validators);
     }
   }, [values, runValidators, validators, hasFailed, phase2]);
 
-  // cleans up the error state, after hasFailed is set to false ;
   useEffect(() => {
     if (!hasFailed) setErrors(getErrorDefaultState(initialState));
   }, [hasFailed, setErrors, initialState]);

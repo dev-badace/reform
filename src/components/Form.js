@@ -1,32 +1,15 @@
-import React, { createContext } from "react";
-import useForm from "../hooks/useForm";
+import React, { useContext } from "react";
+import { FormCtx } from "./ReForm";
 
-export const FormCtx = createContext(null);
-function Form({
-  initialState,
-  onSubmit,
-  validators,
-  onChange,
-  phase2,
-  children,
-  ...props
-}) {
-  const {
-    state: { values },
-    state: { errors },
-    handleSubmit,
-    valueChange,
-    isSubmitting,
-  } = useForm({ initialState, cb: onSubmit, validators, onChange, phase2 });
-
+function Form({ children, as, ...props }) {
+  const { handleSubmit, errors, isSubmitting, values } = useContext(FormCtx);
+  const Comp = as || "form";
   return (
-    <>
-      <form {...props} onSubmit={handleSubmit} autoComplete="off">
-        <FormCtx.Provider value={{ values, valueChange, errors, isSubmitting }}>
-          {children({ values, valueChange, errors, isSubmitting })}
-        </FormCtx.Provider>
-      </form>
-    </>
+    <Comp {...props} onSubmit={handleSubmit}>
+      {typeof children === "function"
+        ? children({ errors, isSubmitting, values })
+        : children}
+    </Comp>
   );
 }
 

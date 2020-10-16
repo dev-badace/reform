@@ -91,8 +91,6 @@ function useForm({ initialState, cb, validators, onChange, phase2 }) {
     [values, initialState]
   );
 
-  useEffect(() => console.log(errors), [errors]);
-
   // If on change prop is passed, then runs the validators onChange
   useEffect(() => {
     if (onChange) runValidators(validators);

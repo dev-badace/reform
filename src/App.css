@@ -1,4 +1,4 @@
-* {
+/* * {
   border: 0;
   padding: 0;
   margin: 2rem;
@@ -21,23 +21,24 @@ body {
   background-color: rgb(234, 237, 237);
   font-size: 3rem;
   text-align: center;
-}
-input {
+} */
+/* input {
   padding: 1rem;
   outline: none;
-}
+} */
 
 .error {
   color-interpolation-filters: linearRGB;
-  border: 1px solid tomato;
   color: red;
-  padding: 1rem;
 }
-
-button {
+.form-container {
+  width: 40rem;
+  margin: auto;
+}
+/* button {
   cursor: pointer;
   border: 1px solid #000;
   padding: 1rem 1.5rem;
   outline: none;
   border-radius: 0.5rem;
-}
+} */

@@ -1,35 +1,26 @@
 import React from "react";
+import { Form as SemanticForm } from "semantic-ui-react";
 import "./App.css";
-import Form from "./components/Form";
-import Feild from "./components/Field";
+import "semantic-ui-css/semantic.min.css";
+import { ReForm, Field, Form } from "./components";
 
-// function sleep(ms) {
-//   return new Promise((resolve) => setTimeout(resolve, ms));
-// }
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function LoginForm() {
-  const onSubmit = async (data, { setIsSubmitting, reset }) => {
+  const onSubmit = async (data, { reset, setIsSubmitting }) => {
+    setIsSubmitting(true);
+    await sleep(3000);
+    setIsSubmitting(false);
     console.log(data);
     reset();
   };
   return (
     <div>
       <h3>ne ne Yosha!</h3>
-      <Form initialState={{ name: "", password: "" }} onSubmit={onSubmit}>
-        {({ values, valueChange }) => (
-          <>
-            <Feild name="name" value={values.name} onChange={valueChange} />
-            <Feild
-              type="password"
-              name="password"
-              value={values.password}
-              onChange={valueChange}
-            />
-            <button>Submit</button>
-          </>
-        )}
-      </Form>
-      {/* <Form
+
+      <ReForm
         initialState={{ firstName: "", lastName: "" }}
         onSubmit={onSubmit}
         phase2
@@ -44,43 +35,44 @@ function LoginForm() {
           },
         }}
       >
-        {({ values, valueChange, errors, isSubmitting }) => {
-          const errFirstName = `${errors.firstName ? "error" : ""}`;
-          const errLastName = `${errors.lastName ? "error" : ""}`;
-
-          return (
-            <>
-              <div>
-                <input
-                  type="text"
-                  className={errFirstName}
-                  placeholder="FirstName"
-                  name="firstName"
-                  value={values.firstName}
-                  onChange={valueChange}
-                />
-                {errors.firstName && (
-                  <div className="error">{`${errors.firstName}`}</div>
-                )}
-              </div>
-              <div>
-                <input
-                  type="text"
-                  className={errLastName}
-                  placeholder="LastName"
-                  name="lastName"
-                  value={values.lastName}
-                  onChange={valueChange}
-                />
-                {errors.lastName && (
-                  <div className="error">{`${errors.lastName}`}</div>
-                )}
-              </div>
-              <button disabled={isSubmitting}>Submit</button>
-            </>
-          );
-        }}
-      </Form> */}
+        <div className="form-container">
+          <Form autoComplete="off" as={SemanticForm} noValidate>
+            {({ errors, isSubmitting }) => {
+              const errFirstName = `${errors.firstName ? "error" : ""}`;
+              const errLastName = `${errors.lastName ? "error" : ""}`;
+              return (
+                <>
+                  <div>
+                    <Field
+                      className={errFirstName}
+                      placeholder="FirstName"
+                      name="firstName"
+                      as={SemanticForm.Input}
+                    />
+                    {errors.firstName && (
+                      <div className="error">{`${errors.firstName}`}</div>
+                    )}
+                  </div>
+                  <div>
+                    <Field
+                      className={errLastName}
+                      placeholder="LastName"
+                      name="lastName"
+                      as={SemanticForm.Input}
+                    />
+                    {errors.lastName && (
+                      <div className="error">{`${errors.lastName}`}</div>
+                    )}
+                  </div>
+                  <button className="ui primary button" type="submit">
+                    Submit
+                  </button>
+                </>
+              );
+            }}
+          </Form>
+        </div>
+      </ReForm>
     </div>
   );
 }

@@ -9,7 +9,6 @@ function Form({
   onChange,
   phase2,
   children,
-  ...props
 }) {
   const {
     state: { values },
@@ -18,15 +17,11 @@ function Form({
     valueChange,
     isSubmitting,
   } = useForm({ initialState, cb: onSubmit, validators, onChange, phase2 });
-  // const formCtx = { values, valueChange, errors, isSubmitting, handleSubmit };
+  const formCtx = { values, valueChange, errors, isSubmitting, handleSubmit };
   return (
     <>
-      <FormCtx.Provider
-        value={(values, valueChange, errors, isSubmitting, handleSubmit)}
-      >
-        <form {...props} onSubmit={(e) => handleSubmit(e)} autoComplete="off">
-          {children({ values, valueChange, errors, isSubmitting })}
-        </form>
+      <FormCtx.Provider value={formCtx}>
+        {typeof children === "function" ? children(formCtx) : children}
       </FormCtx.Provider>
     </>
   );

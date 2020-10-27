@@ -11,10 +11,21 @@ const getErrorDefaultState = (obj) => {
   return res;
 };
 
+const checkErrors = (obj) => {
+  let isError = false;
+
+  for (let prop in obj) {
+    if (obj[prop]) isError = true;
+  }
+
+  return isError;
+};
+
 //useForm hook
-function useForm({ initialState, cb, validators, onChange, phase2 }) {
+function useForm({ initialState, cb, validators, phase1, phase2 }) {
   const [values, setValues] = useState(initialState);
   const [errors, setErrors] = useState(getErrorDefaultState(initialState));
+  const [touched, setTouched] = useState(getErrorDefaultState(initialState));
   const [hasFailed, setHasFailed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,21 +54,47 @@ function useForm({ initialState, cb, validators, onChange, phase2 }) {
     });
   };
 
+  const handleBlur = (e) => {
+    const { name } = e.target;
+
+    setTouched((touched) => ({
+      ...touched,
+      [name]: true,
+    }));
+  };
+
+  //resets everything
   const reset = () => {
-    setValues(initialState);
-    setErrors(getErrorDefaultState(initialState));
-    setHasFailed(false);
-    setIsSubmitting(false);
+    setValues(() => initialState);
+    setErrors(() => getErrorDefaultState(initialState));
+    setTouched(() => getErrorDefaultState(initialState));
+    setHasFailed(() => false);
+    setIsSubmitting(() => false);
   };
 
   // handles the form submitting, does not runs the callback if there are errors
   const handleSubmit = (e) => {
     e.preventDefault();
-    setHasFailed(true);
-    //check for errors and if there are errors return
-    const areErrors = runValidators(validators);
-    if (areErrors) return;
 
+    //check for errors and if there are errors return PHASE2
+    if (phase2) {
+      const areErrors = runValidators(validators);
+      if (areErrors) {
+        setHasFailed(() => true);
+        return;
+      }
+    }
+
+    //check for errors and if there are errors return PHASE1
+    if (phase1) {
+      const areErrors = checkErrors(errors);
+      if (areErrors) {
+        setHasFailed(() => true);
+        return;
+      }
+    }
+
+    setHasFailed((failed) => !failed);
     //executes the callback if there was no error
     cb(values, { setIsSubmitting, reset });
   };
@@ -72,7 +109,9 @@ function useForm({ initialState, cb, validators, onChange, phase2 }) {
 
         const err =
           validators[error] && validators[error](values[error], values);
+
         if (err) isError = true;
+
         err
           ? setErrors((errors) => ({ ...errors, [error]: err }))
           : setErrors((errors) => ({ ...errors, [error]: "" }));
@@ -91,10 +130,10 @@ function useForm({ initialState, cb, validators, onChange, phase2 }) {
     [values, initialState]
   );
 
-  // If on change prop is passed, then runs the validators onChange
+  // If on phase2 prop is passed, then runs the validators onChange
   useEffect(() => {
-    if (onChange) runValidators(validators);
-  }, [values, runValidators, validators, onChange]);
+    if (phase1) runValidators(validators);
+  }, [values, runValidators, validators, phase1]);
 
   // runs If formSubmission has failed once; It validates the input on change
   useEffect(() => {
@@ -104,13 +143,15 @@ function useForm({ initialState, cb, validators, onChange, phase2 }) {
   }, [values, runValidators, validators, hasFailed, phase2]);
 
   // cleans up the error state, after hasFailed is set to false ;
-  useEffect(() => {
-    if (!hasFailed) setErrors(getErrorDefaultState(initialState));
-  }, [hasFailed, setErrors, initialState]);
+  // useEffect(() => {
+
+  //   if (!hasFailed) setErrors(getErrorDefaultState(initialState));
+  // }, [hasFailed, setErrors, initialState]);
 
   return {
-    state: { values, errors },
+    state: { values, errors, touched, hasFailed },
     valueChange,
+    handleBlur,
     handleSubmit,
     isSubmitting,
   };

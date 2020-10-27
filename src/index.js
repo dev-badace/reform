@@ -1,10 +1,10 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./App";
+import ReForm from "./components/ReForm";
+import Field from "./components/Field";
+import Form from "./components/Form";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById("root")
-);
+import useForm from "./hooks/useForm";
+
+//eamples
+import "./examples";
+
+export { ReForm, Form, useForm, Field };

@@ -6,18 +6,30 @@ function Form({
   initialState,
   onSubmit,
   validators,
-  onChange,
+  phase1,
   phase2,
   children,
 }) {
   const {
     state: { values },
     state: { errors },
+    state: { touched },
+    state: { hasFailed: triedSubmit },
     handleSubmit,
     valueChange,
     isSubmitting,
-  } = useForm({ initialState, cb: onSubmit, validators, onChange, phase2 });
-  const formCtx = { values, valueChange, errors, isSubmitting, handleSubmit };
+    handleBlur,
+  } = useForm({ initialState, cb: onSubmit, validators, phase1, phase2 });
+  const formCtx = {
+    values,
+    valueChange,
+    touched,
+    errors,
+    triedSubmit,
+    isSubmitting,
+    handleSubmit,
+    handleBlur,
+  };
   return (
     <>
       <FormCtx.Provider value={formCtx}>
